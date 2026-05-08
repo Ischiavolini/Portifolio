@@ -207,7 +207,7 @@ const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(
 
 export default defineConfig({
   plugins,
-  base: process.env.GITHUB_PAGES === "true" ? "/ubuntu-portfolio/" : "/",
+  base: process.env.GITHUB_PAGES === "true" ? "/Portifolio/" : "/",
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),
