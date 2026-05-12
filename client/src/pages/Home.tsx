@@ -202,16 +202,22 @@ function WindowContent({ id }: { id: AppId }) {
             ))}
           </div>
           <div className="rounded-2xl border border-orange-400/25 bg-orange-500/10 p-4 text-sm leading-7 text-orange-50">
-            <strong>Video storytelling</strong> em andamento....
+            <strong>Audio storytelling</strong> disponível abaixo.
           </div>
         </section>
         <aside className="space-y-4">
           <img className="h-56 w-full rounded-3xl object-cover shadow-2xl shadow-orange-950/40" src={readmePanelUrl} alt="Painel visual do README" />
-          <div className="video-card">
-            <div className="play-button">▶</div>
-            <div>
-              <p className="font-bold text-white">Storytelling.mp4</p>
-              <p className="text-sm text-zinc-300">Área reservada para seu vídeo de apresentação. em andamento.....</p>
+          <div className="video-card p-4">
+            <div className="flex items-center gap-4">
+              <div className="play-button">🎧</div>
+              <div className="flex-1">
+                <p className="font-bold text-white">Storytelling_Gabriel.mp3</p>
+                <p className="text-xs text-zinc-300 mb-2">Ouça minha apresentação pessoal</p>
+                <audio controls className="w-full h-8 custom-audio">
+                  <source src="/gabriel_voz_otimizada.mp3" type="audio/mpeg" />
+                  Seu navegador não suporta o elemento de áudio.
+                </audio>
+              </div>
             </div>
           </div>
         </aside>
@@ -242,77 +248,97 @@ function WindowContent({ id }: { id: AppId }) {
             </div>
           </div>
           <div className="grid gap-4 xl:grid-cols-[1fr_300px]">
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               {projects.map((project) => (
-                <button className="project-tile text-left" key={project.name} onClick={() => setSelectedProject(project)}>
-                  <img src={project.image} alt={project.name} />
-                  <div className="p-4">
-                    <span>{project.type}</span>
-                    <h3>{project.name}</h3>
-                    <p>{project.status}</p>
+                <button
+                  key={project.name}
+                  onClick={() => {
+                    setSelectedProject(project);
+                    setActiveProjectTab('info');
+                  }}
+                  className={`project-card group ${selectedProject.name === project.name ? 'active' : ''}`}
+                >
+                  <div className="relative h-32 overflow-hidden rounded-xl">
+                    <img src={project.image} alt={project.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <span className="absolute bottom-2 left-2 rounded-lg bg-orange-500 px-2 py-1 text-[10px] font-bold uppercase text-white">
+                      {project.status}
+                    </span>
+                  </div>
+                  <div className="p-3 text-left">
+                    <h3 className="font-bold text-white">{project.name}</h3>
+                    <p className="text-xs text-zinc-400">{project.type}</p>
                   </div>
                 </button>
               ))}
             </div>
-            <aside className="project-detail">
-              <span className="terminal-label">specs.selected</span>
-              <h3>{selectedProject.name}</h3>
-              <p className="mb-4">{selectedProject.description}</p>
-              
-              <div className="mb-4 flex gap-2 border-b border-white/10">
-                {(['info', 'repo', 'demo', 'files'] as const).map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveProjectTab(tab)}
-                    className={`pb-2 text-xs font-bold uppercase tracking-wider transition ${
-                      activeProjectTab === tab
-                        ? 'border-b-2 border-orange-500 text-orange-300'
-                        : 'text-zinc-400 hover:text-zinc-200'
-                    }`}
-                  >
-                    {tab === 'info' && 'Info'}
-                    {tab === 'repo' && 'Repo'}
-                    {tab === 'demo' && 'Demo'}
-                    {tab === 'files' && 'Files'}
-                  </button>
-                ))}
-              </div>
-              
-              {activeProjectTab === 'info' && (
-                <div className="space-y-3">
-                  <div className="flex flex-wrap gap-2">
-                    {selectedProject.stack.map((tag) => <span className="chip" key={tag}>{tag}</span>)}
+
+            <aside className="rounded-2xl border border-white/10 bg-white/5 p-4">
+              {selectedProject ? (
+                <div className="space-y-4">
+                  <div className="flex gap-1 rounded-lg bg-black/40 p-1">
+                    {(['info', 'repo', 'demo', 'files'] as const).map((tab) => (
+                      <button
+                        key={tab}
+                        onClick={() => setActiveProjectTab(tab)}
+                        className={`flex-1 rounded-md py-1.5 text-[10px] font-bold uppercase tracking-wider transition-colors ${
+                          activeProjectTab === tab ? 'bg-orange-500 text-white' : 'text-zinc-500 hover:text-zinc-300'
+                        }`}
+                      >
+                        {tab}
+                      </button>
+                    ))}
                   </div>
+
+                  {activeProjectTab === 'info' && (
+                    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
+                      <p className="text-sm leading-relaxed text-zinc-300">{selectedProject.description}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedProject.stack.map((s) => (
+                          <span key={s} className="rounded-md bg-white/10 px-2 py-1 text-[10px] text-zinc-400">{s}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {activeProjectTab === 'repo' && (
+                    <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2">
+                      <div className="rounded-xl bg-black/40 p-4 text-center">
+                        <Github className="mx-auto mb-2 text-zinc-500" size={32} />
+                        <p className="mb-3 text-xs text-zinc-400">Código fonte disponível no GitHub</p>
+                        <a href={selectedProject.repoLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-xs font-bold text-black transition-transform hover:scale-105">
+                          Ver repositório <ExternalLink size={14} />
+                        </a>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeProjectTab === 'demo' && (
+                    <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2">
+                      <div className="rounded-xl bg-orange-500/10 p-4 text-center border border-orange-500/20">
+                        <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-orange-500 text-white">▶</div>
+                        <p className="mb-3 text-xs text-zinc-300">Visualize o projeto em execução</p>
+                        <a href={selectedProject.demoLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-orange-500 px-4 py-2 text-xs font-bold text-white transition-transform hover:scale-105">
+                          Abrir demonstração <ExternalLink size={14} />
+                        </a>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeProjectTab === 'files' && (
+                    <div className="space-y-2 animate-in fade-in slide-in-from-bottom-2">
+                      {selectedProject.files.map((file) => (
+                        <div key={file} className="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-xs text-zinc-400">
+                          {file.endsWith('/') ? <Folder size={14} /> : <FileText size={14} />}
+                          {file}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-              
-              {activeProjectTab === 'repo' && (
-                <div className="space-y-2 text-sm">
-                  <p className="text-zinc-300">Link do repositorio:</p>
-                  <a href="#" className="inline-flex items-center gap-2 text-orange-400 hover:text-orange-300">
-                    <Github size={14} /> Ver codigo
-                  </a>
-                </div>
-              )}
-              
-              {activeProjectTab === 'demo' && (
-                <div className="space-y-2 text-sm">
-                  <p className="text-zinc-300">Demonstracao ao vivo:</p>
-                  <a href="#" className="inline-flex items-center gap-2 text-orange-400 hover:text-orange-300">
-                    <ExternalLink size={14} /> Abrir demo
-                  </a>
-                </div>
-              )}
-              
-              {activeProjectTab === 'files' && (
-                <div className="space-y-2 text-sm">
-                  <p className="text-zinc-300">Arquivos do projeto:</p>
-                  <div className="space-y-1 text-xs text-zinc-400">
-                    <p>src/</p>
-                    <p>public/</p>
-                    <p>package.json</p>
-                    <p>README.md</p>
-                  </div>
+              ) : (
+                <div className="flex h-full items-center justify-center text-zinc-500">
+                  Selecione um projeto para ver detalhes
                 </div>
               )}
             </aside>
@@ -323,106 +349,59 @@ function WindowContent({ id }: { id: AppId }) {
   }
 
   if (id === "about") {
-    const softSkills = [
-      "Letramento Digital",
-      "Pensamento crítico",
-      "Trabalho em equipe",
-      "Adaptabilidade",
-      "Comprometimento",
-      "Vontade de Aprender",
-      "Resolução de problemas",
-      "Empatia",
-      "Accountability",
-    ];
-    const hardSkills = [
-      "React",
-      "TypeScript",
-      "Tailwind CSS",
-      "Node.js",
-      "Python",
-      "Pacote Office",
-      "Aprendizado Continuo",
-      "UI design",
-      "C#",
-
-    ];
     return (
-      <div className="window-scroll p-6">
-        <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
-          <section className="profile-card">
-            <div className="avatar-orb">SN</div>
-            <h2>Sobre mim</h2>
-            <p>
-              Sou um jovem dedicado ao conhecimento e sempre tive muitos sonhos e objetivos. Desde criança, me via jogando videogame e admirava o fato de que muitos desses projetos, mesmo sendo jogos, conseguiam impactar e entreter outras pessoas de forma positiva. Por isso, desde cedo surgiu em mim a vontade de criar meu próprio jogo. Foi através desse interesse que conheci a programação, algo que abriu meus olhos para o mundo da tecnologia. Com o tempo, percebi que, além de desenvolver jogos, também poderia criar sistemas e soluções capazes de impactar positivamente a vida das pessoas. Assim, acabei me encontrando na programação e desenvolvendo ainda mais minha paixão pela tecnologia.
-            </p>
-            <div className="mt-5 space-y-3">
-              {socialLinks.map((link) => {
-                const Icon = link.icon;
-                return (
-                  <a className="social-link" href={link.href} key={link.label} target="_blank" rel="noreferrer">
-                    <Icon size={18} /> {link.label}
+      <div className="window-scroll p-8">
+        <div className="mx-auto max-w-2xl space-y-8">
+          <header className="flex flex-col items-center gap-6 text-center sm:flex-row sm:text-left">
+            <div className="relative">
+              <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-orange-500 to-fuchsia-500 blur opacity-75 animate-pulse" />
+              <div className="relative h-32 w-32 rounded-full border-4 border-zinc-900 bg-zinc-800 p-1">
+                <div className="flex h-full w-full items-center justify-center rounded-full bg-zinc-700 text-4xl">👨‍💻</div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-3xl font-black text-white">Gabriel Oliveira Ischiavolini</h2>
+              <p className="text-orange-400 font-mono">Desenvolvedor em formação</p>
+              <div className="flex gap-3 justify-center sm:justify-start">
+                {socialLinks.map((link) => (
+                  <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-white transition-colors">
+                    <link.icon size={20} />
                   </a>
-                );
-              })}
+                ))}
+              </div>
             </div>
-          </section>
+          </header>
+
           <section className="space-y-4">
-            {["O que me move"].map((title, index) => (
-              <article className="about-note" key={title}>
-                <span>0{index + 1}</span>
-                <h3>{title}</h3>
-                <p>
-                  O que me move é a vontade de aprender, criar e desenvolver coisas que possam impactar positivamente a vida das pessoas. Desde criança, a tecnologia e os jogos despertaram minha curiosidade, e foi através disso que descobri a programação. Hoje, o que mais me motiva é saber que posso transformar ideias em projetos reais, seja criando jogos, sistemas ou soluções úteis, enquanto continuo evoluindo profissionalmente e adquirindo novos conhecimentos
-                  </p>
-              </article>
-            ))}
-             {["Como eu trabalho"].map((title, index) => (
-              <article className="about-note" key={title}>
-                <span>0{index + 2}</span>
-                <h3>{title}</h3>
-                <p>
-                  Trabalho de forma focada e centrada, sempre sendo muito atento às tarefas e aos detalhes. Desde cedo, aprendi a me responsabilizar pelo que faço e entendi a importância de dar o meu melhor em tudo que realizo. Acredito que amadurecer e assumir responsabilidades ao longo da vida contribuíram para que eu desenvolvesse essa postura mais comprometida e dedicada.
-                </p>
-              </article>
-            ))}
-             {["O que estou buscando"].map((title, index) => (
-              <article className="about-note" key={title}>
-                <span>0{index + 3}</span>
-                <h3>{title}</h3>
-                <p>
-                  O que estou buscando é me aprimorar cada vez mais para ter a capacidade de transformar em realidade os projetos que já planejei, sejam jogos, softwares ou outras ideias voltadas à tecnologia. No âmbito profissional, busco adquirir experiência, desenvolver minhas habilidades e crescer continuamente, dando preferência à área de tecnologia, mas sem me limitar apenas a ela, pois também valorizo oportunidades que possam agregar aprendizado e evolução pessoal e profissional.
-                </p>
-              </article>
-            ))}
+            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+              <User className="text-orange-500" size={20} /> Perfil Profissional
+            </h3>
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-6 leading-relaxed text-zinc-300">
+              Sempre gostei muito de aprender coisas novas, principalmente envolvendo tecnologia, desenvolvimento e criação de ideias. Meu foco é crescer profissionalmente, ganhar experiência e transformar aprendizado em algo prático e útil.
+            </div>
           </section>
-        </div>
-        
-        <div className="mt-8 border-t border-white/10 pt-8">
-          <h3 className="mb-6 text-xl font-bold text-white">Competências</h3>
-          <div className="grid gap-8 lg:grid-cols-2">
-            <div>
-              <h4 className="mb-4 text-sm font-bold uppercase tracking-wider text-orange-300">Soft Skills</h4>
-              <div className="space-y-2">
-                {softSkills.map((skill) => (
-                  <div key={skill} className="flex items-center gap-3 rounded-lg bg-white/5 px-3 py-2 text-sm text-zinc-200">
-                    <span className="h-2 w-2 rounded-full bg-orange-400"></span>
+
+          <section className="grid gap-4 sm:grid-cols-2">
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+              <h4 className="mb-3 font-bold text-white">Interesses</h4>
+              <ul className="space-y-2 text-sm text-zinc-400">
+                <li className="flex items-center gap-2"><i className="h-1.5 w-1.5 rounded-full bg-orange-500" /> Desenvolvimento Back-end</li>
+                <li className="flex items-center gap-2"><i className="h-1.5 w-1.5 rounded-full bg-orange-500" /> Desenvolvimento Front-end</li>
+                <li className="flex items-center gap-2"><i className="h-1.5 w-1.5 rounded-full bg-orange-500" /> Criação de Jogos</li>
+                <li className="flex items-center gap-2"><i className="h-1.5 w-1.5 rounded-full bg-orange-500" /> Novas Tecnologias</li>
+              </ul>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+              <h4 className="mb-3 font-bold text-white">Habilidades</h4>
+              <div className="flex flex-wrap gap-2">
+                {["JavaScript", "HTML/CSS", "C#", "Unity", "React", "Node.js"].map((skill) => (
+                  <span key={skill} className="rounded-lg bg-orange-500/10 border border-orange-500/20 px-3 py-1 text-xs text-orange-300">
                     {skill}
-                  </div>
+                  </span>
                 ))}
               </div>
             </div>
-            <div>
-              <h4 className="mb-4 text-sm font-bold uppercase tracking-wider text-orange-300">Hard Skills</h4>
-              <div className="space-y-2">
-                {hardSkills.map((skill) => (
-                  <div key={skill} className="flex items-center gap-3 rounded-lg bg-white/5 px-3 py-2 text-sm text-zinc-200">
-                    <span className="h-2 w-2 rounded-full bg-orange-400"></span>
-                    {skill}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          </section>
         </div>
       </div>
     );
@@ -431,24 +410,21 @@ function WindowContent({ id }: { id: AppId }) {
   if (id === "academic") {
     return (
       <div className="window-scroll p-6">
-        <div className="mb-6 flex items-end justify-between gap-4">
-          <div>
-            <div className="terminal-label">academic.my --certificates</div>
-            <h2 className="text-3xl font-black text-white">Instituições, cursos e certificados</h2>
-          </div>
-          <Award className="text-orange-300" size={34} />
+        <div className="mb-8">
+          <div className="terminal-label">~/formação</div>
+          <h2 className="text-3xl font-black text-white">Trajetória Acadêmica</h2>
         </div>
-        <div className="timeline">
-          {academicItems.map((item) => (
-            <article className="timeline-item" key={item.title}>
-              <div>
-                <span>{item.period}</span>
-                <h3>{item.title}</h3>
-                <strong>{item.place}</strong>
-                <p>{item.details}</p>
+        <div className="space-y-6">
+          {academicItems.map((item, index) => (
+            <div key={index} className="relative pl-8 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-px before:bg-zinc-800">
+              <div className="absolute left-[-4px] top-2 h-2 w-2 rounded-full bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.5)]" />
+              <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5 transition-colors hover:bg-white/[0.04]">
+                <span className="text-xs font-bold uppercase tracking-widest text-orange-500">{item.period}</span>
+                <h3 className="mt-1 text-xl font-bold text-white">{item.title}</h3>
+                <p className="text-sm text-zinc-400">{item.place}</p>
+                <p className="mt-3 text-sm leading-relaxed text-zinc-300">{item.details}</p>
               </div>
-              <button>Adicionar certificado</button>
-            </article>
+            </div>
           ))}
         </div>
       </div>
@@ -458,43 +434,60 @@ function WindowContent({ id }: { id: AppId }) {
   if (id === "career") {
     return (
       <div className="window-scroll p-6">
-        <div className="career-header">
-          <div>
-            <div className="terminal-label">linkedin.local/profile</div>
-            <h2>Trajetória profissional</h2>
-            <p>Um app inspirado no LinkedIn, mas com linguagem mais direta e visual.</p>
-          </div>
-          <Briefcase size={38} />
+        <div className="mb-8">
+          <div className="terminal-label">~/carreira</div>
+          <h2 className="text-3xl font-black text-white">Experiência Profissional</h2>
         </div>
-        <div className="space-y-4">
-          {careerItems.map((item) => (
-            <article className="career-item" key={item.role}>
-              <div className="career-dot" />
-              <div>
-                <span>{item.period}</span>
-                <h3>{item.role}</h3>
-                <strong>{item.company}</strong>
-                <p>{item.text}</p>
+        <div className="space-y-6">
+          {careerItems.map((item, index) => (
+            <div key={index} className="group rounded-2xl border border-white/10 bg-white/5 p-6 transition-all hover:border-orange-500/30">
+              <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-xl font-bold text-white group-hover:text-orange-400 transition-colors">{item.role}</h3>
+                  <p className="text-zinc-400">{item.company}</p>
+                </div>
+                <span className="rounded-full bg-orange-500/10 px-4 py-1 text-xs font-bold text-orange-500 border border-orange-500/20">
+                  {item.period}
+                </span>
               </div>
-            </article>
+              <p className="text-sm leading-relaxed text-zinc-300">{item.text}</p>
+            </div>
           ))}
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="window-scroll terminal-window p-6 font-mono text-sm leading-7 text-emerald-100">
-      <p><span className="text-orange-300">portfolio@ubuntu</span>:~$ help</p>
-      <p>Comandos conceituais disponíveis:</p>
-      <p>open README.md — abre sua apresentação principal</p>
-      <p>open Projetos — mostra cases e especificações</p>
-      <p>open academic.my — lista instituições e certificados</p>
-      <p>open Linkedin.local — mostra trajetória profissional</p>
-      <br />
-      <p className="text-zinc-400">Dica: este terminal pode virar um easter egg com comandos reais no futuro.</p>
-    </div>
-  );
+  if (id === "terminal") {
+    return (
+      <div className="flex h-full flex-col bg-[#2c001e] font-mono text-sm text-white shadow-inner">
+        <div className="flex items-center justify-between border-b border-white/5 bg-white/5 px-4 py-2">
+          <div className="flex items-center gap-2">
+            <Terminal size={14} /> <span>ubuntu@portfolio: ~</span>
+          </div>
+        </div>
+        <div className="window-scroll p-4 space-y-4">
+          <p className="text-green-400">login success: welcome to gabriel-os v1.0.4</p>
+          <div className="space-y-2">
+            <p><span className="text-orange-500">➜</span> <span className="text-cyan-400">~</span> help</p>
+            <div className="grid grid-cols-2 gap-2 text-zinc-400">
+              <div>about -- ver perfil</div>
+              <div>projects -- ver trabalhos</div>
+              <div>contact -- redes sociais</div>
+              <div>clear -- limpar terminal</div>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <span className="text-orange-500">➜</span>
+            <span className="text-cyan-400">~</span>
+            <span className="animate-pulse">_</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
 }
 
 function DesktopWindow({
